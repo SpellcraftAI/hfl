@@ -1,3 +1,3 @@
-a: b
-c:
-  d: e
+pipeline: true
+task: text-generation
+checkpoint: distilgpt
