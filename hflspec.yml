@@ -2,4 +2,4 @@ pipeline: true
 task: text-generation
 checkpoint: distilgpt2
 inference:
-  sequence: Today is
+  sequence: Today is such a
