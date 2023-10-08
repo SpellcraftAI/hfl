@@ -5,6 +5,7 @@ class Loader:
     self.metadata = metadata.Metadata()
     self.spec = spec
     self.write_meta()
+    self.metadata.run()
   
   def write_meta(self):
     if "task" in self.spec:
@@ -15,3 +16,6 @@ class Loader:
       self.metadata.pipeline = self.spec["pipeline"]
     else:
       self.metadata.pipeline = False
+    if "inference" in self.spec:
+      if "sequence" in self.spec["inference"]:
+        self.metadata.sequence = self.spec["inference"]["sequence"]
