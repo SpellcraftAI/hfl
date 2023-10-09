@@ -1,17 +1,5 @@
-import json
-from transformers import pipeline
-from pygments import highlight
-from pygments.formatters.terminal256 import Terminal256Formatter
-from pygments.lexers.web import JsonLexer
-
-def dict_log(dict):
-  raw_json = json.dumps(dict, indent=4)
-  colorful = highlight(
-      raw_json,
-      lexer=JsonLexer(),
-      formatter=Terminal256Formatter(),
-  )
-  print(colorful)
+from transformers import pipeline, AutoTokenizer
+from utils import dict_log
 
 class Metadata:
   def __init__(self) -> None:
@@ -37,4 +25,14 @@ class Metadata:
   #   used (distilbert-base-uncased-finetuned-sst-2-english)
   # - customizable pytorch-only preprocessing
   def run_transformers(self):
+    if self.tokenizer is not None and self.tokenizer is not False:
+      self.build_tokenizer()
+
+  def build_tokenizer(self):
+    print("Initializing tokenizer...")
+    feature_checkp = self.tokenizer["checkpoint"] if "checkpoint" in self.tokenizer else self.checkpoint
+    extra_opts = dict(self.tokenizer)
+    if "checkpoint" in extra_opts:
+      del extra_opts["checkpoint"]
+    print(feature_checkp, extra_opts)
     pass

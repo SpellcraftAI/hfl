@@ -16,6 +16,10 @@ class Loader:
       self.metadata.pipeline = self.spec["pipeline"]
     else:
       self.metadata.pipeline = False
+    if "tokenizer" in self.spec:
+      self.metadata.tokenizer = dict(self.spec["tokenizer"])
+    else:
+      self.metadata.tokenizer = False
     if "inference" in self.spec:
       if "sequence" in self.spec["inference"]:
         self.metadata.sequence = self.spec["inference"]["sequence"]

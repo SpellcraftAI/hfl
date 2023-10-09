@@ -1,5 +1,9 @@
-pipeline: true
+# pipeline: true
 task: text-generation
 checkpoint: distilgpt2
 inference:
   sequence: Today is such a
+tokenizer:
+  checkpoint: otherchckp
+  padding: true
+  truncation: true
