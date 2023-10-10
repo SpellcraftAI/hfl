@@ -1,13 +1,16 @@
 import json
-from pygments import highlight
-from pygments.formatters.terminal256 import Terminal256Formatter
-from pygments.lexers.web import JsonLexer
+from rich.console import Console
+from rich.syntax import Syntax
 
-def dict_log(dict):
-  raw_json = json.dumps(dict, indent=4)
-  highlighted = highlight(
-      raw_json,
-      lexer=JsonLexer(),
-      formatter=Terminal256Formatter(),
-  )
-  print(highlighted)
+console = Console()
+
+def rule_dump(tagline):
+  console.rule(tagline)
+
+def trace_dump(msg):
+  console.log(msg)
+
+def dict_dump(dict, indent=2):
+  raw_json = json.dumps(dict, indent=indent)
+  syntax = Syntax(raw_json, "json", theme="lightbulb", line_numbers=True, word_wrap=True, background_color="#000000")
+  console.print(syntax)

@@ -1,3 +1,4 @@
+# pipeline: true
 task: text-generation
 checkpoint: distilgpt2
 inference:
