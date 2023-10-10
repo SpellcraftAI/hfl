@@ -20,6 +20,10 @@ class Loader:
       self.metadata.tokenizer = dict(self.spec["tokenizer"])
     else:
       self.metadata.tokenizer = False
+    if "model" in self.spec:
+      self.metadata.model = dict(self.spec["model"])
+    else:
+      self.metadata.model = False
     if "inference" in self.spec:
       if "sequence" in self.spec["inference"]:
         self.metadata.sequence = self.spec["inference"]["sequence"]

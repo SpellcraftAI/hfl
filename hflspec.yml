@@ -1,4 +1,3 @@
-# pipeline: true
 task: text-generation
 checkpoint: distilgpt2
 inference:
@@ -7,3 +6,5 @@ tokenizer:
   checkpoint: bert-base-uncased
   padding: true
   truncation: true
+model:
+  checkpoint: bert-base-uncased

@@ -4,6 +4,9 @@ from rich.syntax import Syntax
 
 console = Console()
 
+def join_truthy_keys(input):
+  return ", ".join([key for key, value in input.items() if value is True])
+
 def rule_dump(tagline):
   console.rule(tagline)
 
