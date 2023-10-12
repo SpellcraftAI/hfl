@@ -30,6 +30,10 @@ class Loader:
       self.metadata.dataset = dict(self.spec["dataset"])
     else:
       self.metadata.dataset = False
+    if "trainer" in self.spec:
+      self.metadata.trainer = dict(self.spec["trainer"])
+    else:
+      self.metadata.trainer = dict() # required for synthetic
     if "inference" in self.spec:
       if "sequence" in self.spec["inference"]:
         self.metadata.sequence = self.spec["inference"]["sequence"]

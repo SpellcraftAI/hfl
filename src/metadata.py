@@ -1,7 +1,7 @@
 import torch
 from enum import Enum
-from datasets import load_dataset
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, AutoModelForMaskedLM, AutoModelForCausalLM, AutoModel
+from datasets import Dataset, load_dataset
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, AutoModelForMaskedLM, AutoModelForCausalLM, AutoModel, DataCollatorWithPadding, TrainingArguments, Trainer
 from utils import dict_dump, trace_dump, rule_dump, join_truthy_keys
 
 SEQ_CLX_BINARY_LABEL_MAPPING = {0: "negative", 1: "positive"}
@@ -132,7 +132,7 @@ class Metadata:
     # Apply HFL modes to trainer and synthetic
     hflmode = HFLMode(self.mode)
     if hflmode == HFLMode.TRAIN or hflmode == HFLMode.EVAL:
-      self.train_or_eval()
+      self.dsload()
     elif hflmode == HFLMode.INF: # resume model task
       trace_dump("Piping tokenizer inputs to model...")
       self.tx.pipe_tokens_to_model()
@@ -140,17 +140,51 @@ class Metadata:
     else:
       pass
 
-  def train_or_eval(self):
-    hflmode = HFLMode(self.mode)
+  def dsload(self):
     if isinstance(self.dataset, dict):
         name, ds_set, split = self.dataset["name"], self.dataset["set"] if "set" in self.dataset else None, self.dataset["split"] if "split" in self.dataset else None
         trace_dump("Loading dataset: [bold blue]" + name)
-        trace_dump("Training mode: [bold magenta]" + str(hflmode))
         if ds_set is not None:
           self.tx.dataset = load_dataset(name, ds_set)
         else:
           self.tx.dataset = load_dataset(name)
         trace_dump("✓ Dataset loaded & cached...")
+        self.train_or_eval()
+
+  def train_or_eval(self):
+    hflmode = HFLMode(self.mode)
+    cfg_training_args = self.trainer["args"] if "args" in self.trainer else dict()
+    trace_dump("With mode: [bold magenta]" + str(hflmode))
+    training_args = TrainingArguments(**cfg_training_args)
+    trainer = Trainer(
+      model=self.tx.model,
+      args=training_args,
+      train_dataset=self.tx.dataset["train"],
+      eval_dataset=self.tx.dataset["validation"],
+      data_collator=DataCollatorWithPadding(self.tx.tokenizer_fn),
+    )
+
+    if hflmode == HFLMode.TRAIN:
+      trace_dump("Training model on dataset...")
+      # trainer.train()
+      # @fix requires multi-sequence tokenization
+      # train_data = Dataset.from_dict({
+      #   'input_ids': train_input_ids,
+      #   'label': train_labels,
+      # })
+
+      # eval_data = Dataset.from_dict({
+      #   'input_ids': eval_input_ids,
+      #   'label': eval_labels,
+      # })
+      # trainer.train(train_dataset=train_data, eval_dataset=eval_data)
+      trace_dump("✓ Done training. Switch to `eval` for benchmarking/cross-validation.")
+      pass
+    elif hflmode == HFLMode.EVAL:
+      trace_dump("Evaluating model on eval set...")
+      results = trainer.evaluate()
+      trace_dump("✓ Done evaluation, dumping metrics...")
+      print(results)
 
   def postprocess(self):
     trace_dump("Unpacking model outputs (TASK="+self.model_task.value+")")
