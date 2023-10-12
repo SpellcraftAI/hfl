@@ -1,4 +1,4 @@
-task: text-generation
+task: sequence-classification
 checkpoint: distilgpt2
 inference:
   sequence: Today is such a

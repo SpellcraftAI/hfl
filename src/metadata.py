@@ -1,3 +1,4 @@
+import torch
 from enum import Enum
 from utils import dict_dump, trace_dump, rule_dump, join_truthy_keys
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, AutoModelForMaskedLM, AutoModelForCausalLM, AutoModel
@@ -29,6 +30,14 @@ class SyntheticTransformer:
 
   def softmax_seqclx_model_output(self):
     pass
+
+  def argmax_seqclx_model_output(self):
+    with torch.no_grad():
+      outputs = self.model(self.tokenizer_inputs["input_ids"])
+
+    logits = outputs.logits
+    predicted_class = torch.argmax(logits, dim=1).item()
+    print(predicted_class)
 
 class Metadata:
   tx = SyntheticTransformer()
@@ -113,5 +122,8 @@ class Metadata:
   
   def postprocess(self):
     trace_dump("Unpacking model outputs (TASK="+self.model_task.value+")")
-    if self.model_task == Task.TEXT_GENERATION:
+    if self.model_task == Task.SEQUENCE_CLASSIFICATION:
+        # self.tx.softmax_seqclx_model_output()
+        self.tx.argmax_seqclx_model_output()
+    elif self.model_task == Task.TEXT_GENERATION:
         self.tx.decode_causal_model_output()
