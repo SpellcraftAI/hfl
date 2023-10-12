@@ -5,6 +5,11 @@ from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassifica
 
 SEQ_CLX_BINARY_LABEL_MAPPING = {0: "negative", 1: "positive"}
 
+class HFLMode(Enum):
+  TRAIN = "train"
+  EVAL  = "eval"
+  INF   = "inference"
+
 # The head is initialized to the task for relevance
 # and enabling transfer learning, where necessary.
 class Task(Enum):
@@ -71,7 +76,6 @@ class Metadata:
     if self.tokenizer is not None and self.tokenizer is not False:
       self.build_tokenizer()
       self.build_model()
-      self.postprocess()
 
   # @todo: batch inputs (splat inference.sequence)
   def build_tokenizer(self):
@@ -93,18 +97,21 @@ class Metadata:
     trace_dump("Initializing model...")
 
     model_checkp = self.model["checkpoint"] if isinstance(self.model, dict) and "checkpoint" in self.model else self.checkpoint
+    model_extra_opts = dict(self.model)
+    if "checkpoint" in model_extra_opts:
+      del model_extra_opts["checkpoint"]
     task = Task(self.task)
     self.model_task = task
 
     if task == Task.SEQUENCE_CLASSIFICATION:
-        self.tx.model = AutoModelForSequenceClassification.from_pretrained(model_checkp)
+        self.tx.model = AutoModelForSequenceClassification.from_pretrained(model_checkp, **model_extra_opts)
     elif task == Task.MASKED_LANGUAGE_MODEL:
-        self.tx.model = AutoModelForMaskedLM.from_pretrained(model_checkp)
+        self.tx.model = AutoModelForMaskedLM.from_pretrained(model_checkp, **model_extra_opts)
     elif task == Task.TEXT_GENERATION:
-        self.tx.model = AutoModelForCausalLM.from_pretrained(model_checkp)
+        self.tx.model = AutoModelForCausalLM.from_pretrained(model_checkp, **model_extra_opts)
     else:
         raise ValueError("Invalid task identifier specified.")
-    
+
     trace_dump("Using [bold]"+model_checkp+"[/bold]")
 
     model_config = self.tx.model.config
@@ -120,9 +127,24 @@ class Metadata:
     trace_dump("Listed sequence context for model:")
     dict_dump(model_seq_ctx)
 
-    trace_dump("Piping tokenizer inputs to model...")
-    self.tx.pipe_tokens_to_model()
-  
+    # Apply HFL modes to trainer and synthetic
+    hflmode = HFLMode(self.mode)
+    if hflmode == HFLMode.TRAIN or hflmode == HFLMode.EVAL:
+      self.train_or_eval()
+    elif hflmode == HFLMode.INF: # resume model task
+      trace_dump("Piping tokenizer inputs to model...")
+      self.tx.pipe_tokens_to_model()
+      self.postprocess()
+    else:
+      pass
+
+  def train_or_eval(self):
+    hflmode = HFLMode(self.mode)
+    if isinstance(self.dataset, dict):
+        print("Loading dataset...", self.dataset)
+        print("With current mode set to: ", hflmode)
+
+
   def postprocess(self):
     trace_dump("Unpacking model outputs (TASK="+self.model_task.value+")")
     if self.model_task == Task.SEQUENCE_CLASSIFICATION:

@@ -1,3 +1,4 @@
+mode: train
 task: sequence-classification
 checkpoint: bert-base-uncased
 inference:
@@ -5,6 +6,8 @@ inference:
 tokenizer:
   padding: true
   truncation: true
+model:
+  num_labels: 2
 dataset:
   name: glue
   set: mrpc

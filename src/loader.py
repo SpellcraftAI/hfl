@@ -8,6 +8,8 @@ class Loader:
     self.metadata.run()
   
   def write_meta(self):
+    if "mode" in self.spec:
+      self.metadata.mode = self.spec["mode"]
     if "task" in self.spec:
       self.metadata.task = self.spec["task"]
     if "checkpoint" in self.spec:
