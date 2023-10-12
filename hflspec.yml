@@ -8,3 +8,7 @@ tokenizer:
   truncation: true
 model:
   checkpoint: bert-base-uncased
+dataset:
+  name: glue
+  set: mrpc
+  split: test

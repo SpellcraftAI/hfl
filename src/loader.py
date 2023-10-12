@@ -24,6 +24,10 @@ class Loader:
       self.metadata.model = dict(self.spec["model"])
     else:
       self.metadata.model = False
+    if "dataset" in self.spec:
+      self.metadata.dataset = dict(self.spec["dataset"])
+    else:
+      self.metadata.dataset = False
     if "inference" in self.spec:
       if "sequence" in self.spec["inference"]:
         self.metadata.sequence = self.spec["inference"]["sequence"]
