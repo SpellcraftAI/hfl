@@ -3,8 +3,10 @@ from enum import Enum
 from utils import dict_dump, trace_dump, rule_dump, join_truthy_keys
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, AutoModelForMaskedLM, AutoModelForCausalLM, AutoModel
 
+SEQ_CLX_BINARY_LABEL_MAPPING = {0: "negative", 1: "positive"}
+
 # The head is initialized to the task for relevance
-# and enabling transfer learning.
+# and enabling transfer learning, where necessary.
 class Task(Enum):
     SEQUENCE_CLASSIFICATION = "sequence-classification"
     MASKED_LANGUAGE_MODEL = "masked-language-model"
@@ -37,7 +39,8 @@ class SyntheticTransformer:
 
     logits = outputs.logits
     predicted_class = torch.argmax(logits, dim=1).item()
-    print(predicted_class)
+    predicted_label = SEQ_CLX_BINARY_LABEL_MAPPING[predicted_class]
+    dict_dump({"predicted_class":predicted_class, "predicted_label":predicted_label})
 
 class Metadata:
   tx = SyntheticTransformer()

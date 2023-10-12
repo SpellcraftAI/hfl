@@ -23,7 +23,7 @@ class Loader:
     if "model" in self.spec:
       self.metadata.model = dict(self.spec["model"])
     else:
-      self.metadata.model = False
+      self.metadata.model = dict() # required for synthetic
     if "dataset" in self.spec:
       self.metadata.dataset = dict(self.spec["dataset"])
     else:

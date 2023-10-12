@@ -1,13 +1,10 @@
 task: sequence-classification
-checkpoint: distilgpt2
+checkpoint: bert-base-uncased
 inference:
-  sequence: Today is such a
+  sequence: Apples are good.
 tokenizer:
-  checkpoint: bert-base-uncased
   padding: true
   truncation: true
-model:
-  checkpoint: bert-base-uncased
 dataset:
   name: glue
   set: mrpc
