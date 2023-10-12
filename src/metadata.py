@@ -14,9 +14,9 @@ class HFLMode(Enum):
 # The head is initialized to the task for relevance
 # and enabling transfer learning, where necessary.
 class Task(Enum):
-    SEQUENCE_CLASSIFICATION = "sequence-classification"
-    MASKED_LANGUAGE_MODEL = "masked-language-model"
-    TEXT_GENERATION = "text-generation"
+  SEQUENCE_CLASSIFICATION = "sequence-classification"
+  MASKED_LANGUAGE_MODEL = "masked-language-model"
+  TEXT_GENERATION = "text-generation"
 
 def serialize_batch_encoding(batch_enc):
   return {
