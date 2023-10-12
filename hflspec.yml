@@ -11,4 +11,3 @@ model:
 dataset:
   name: glue
   set: mrpc
-  split: test

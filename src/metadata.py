@@ -1,7 +1,8 @@
 import torch
 from enum import Enum
-from utils import dict_dump, trace_dump, rule_dump, join_truthy_keys
+from datasets import load_dataset
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, AutoModelForMaskedLM, AutoModelForCausalLM, AutoModel
+from utils import dict_dump, trace_dump, rule_dump, join_truthy_keys
 
 SEQ_CLX_BINARY_LABEL_MAPPING = {0: "negative", 1: "positive"}
 
@@ -28,6 +29,7 @@ class SyntheticTransformer:
   tokenizer_inputs: None
   model: None
   outputs: None
+  dataset: None
 
   def pipe_tokens_to_model(self):
     self.outputs = self.model(**self.tokenizer_inputs)
@@ -141,9 +143,14 @@ class Metadata:
   def train_or_eval(self):
     hflmode = HFLMode(self.mode)
     if isinstance(self.dataset, dict):
-        print("Loading dataset...", self.dataset)
-        print("With current mode set to: ", hflmode)
-
+        name, ds_set, split = self.dataset["name"], self.dataset["set"] if "set" in self.dataset else None, self.dataset["split"] if "split" in self.dataset else None
+        trace_dump("Loading dataset: [bold blue]" + name)
+        trace_dump("Training mode: [bold magenta]" + str(hflmode))
+        if ds_set is not None:
+          self.tx.dataset = load_dataset(name, ds_set)
+        else:
+          self.tx.dataset = load_dataset(name)
+        trace_dump("✓ Dataset loaded & cached...")
 
   def postprocess(self):
     trace_dump("Unpacking model outputs (TASK="+self.model_task.value+")")
