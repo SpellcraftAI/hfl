@@ -2,24 +2,26 @@ mode: train
 task: sequence-classification
 checkpoint: bert-base-uncased
 inference:
-  sequence: Apples are good.
+  sequence:
+    - Apples are good.
+    - Pomegranate tastes dull.
 tokenizer:
   padding: true
   truncation: true
-model:
-  num_labels: 2
-dataset:
-  name: glue
-  set: mrpc
-trainer:
-  args:
-    output_dir: ./build
-    per_device_train_batch_size: 8
-    per_device_eval_batch_size: 8
-    num_train_epochs: 3
-    evaluation_strategy: steps
-    eval_steps: 500
-    save_steps: 500
-    save_total_limit: 2
-    learning_rate: 0.00002
-    load_best_model_at_end: true
+# model:
+#   num_labels: 2
+# dataset:
+#   name: glue
+#   set: mrpc
+# trainer:
+#   args:
+#     output_dir: ./build
+#     per_device_train_batch_size: 8
+#     per_device_eval_batch_size: 8
+#     num_train_epochs: 3
+#     evaluation_strategy: steps
+#     eval_steps: 500
+#     save_steps: 500
+#     save_total_limit: 2
+#     learning_rate: 0.00002
+#     load_best_model_at_end: true

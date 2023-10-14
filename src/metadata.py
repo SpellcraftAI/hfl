@@ -18,6 +18,11 @@ class Task(Enum):
   MASKED_LANGUAGE_MODEL = "masked-language-model"
   TEXT_GENERATION = "text-generation"
 
+# Required later for multi-sequence classification.
+class BinaryClassificationStrategy(Enum):
+  CMP_ARGMAX = "cmp_argmax"
+  SOFTMAX_LOGITS = "argmax_logits"
+
 def serialize_batch_encoding(batch_enc):
   return {
     'input_ids': batch_enc.input_ids.tolist(),
